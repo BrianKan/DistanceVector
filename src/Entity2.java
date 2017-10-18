@@ -5,21 +5,24 @@ public class Entity2 extends Entity
     {
     	int[] minCost=new int[4];
     	// 0, 1,3 
-    	for(int i = 0; i < 4; i++){
-            for(int j = 0; j < 4; j++){
-              distanceTable[i][j] = 999;
-            }
-    	}
-    	
+    	 for(int i = 0; i < 4; i++){
+   	        for(int j = 0; j < 4; j++){
+   	        	if(i==j) {
+   	        		distanceTable[i][j]=0;
+   	        	}
+   	        	else
+   	          distanceTable[i][j] = 999;
+   	        }
+      	 }
     	minCost[0]=3;
     	minCost[1]=1;
     	minCost[2]=0;
     	minCost[3]=2;
     	
     	
-    	distanceTable[0][0] = 3;distanceTable[1][1] = 1;
-        distanceTable[2][2] = 0;distanceTable[3][3] = 2;
-        
+    	distanceTable[2][0] = 3;distanceTable[2][1] = 1;
+        distanceTable[2][2] = 0;distanceTable[2][3] = 2;
+    	printDT();
         NetworkSimulator.toLayer2(new Packet(2, 0, minCost));
         NetworkSimulator.toLayer2(new Packet(2, 1, minCost));
 		NetworkSimulator.toLayer2(new Packet(2, 3, minCost));
@@ -45,24 +48,25 @@ public class Entity2 extends Entity
         }
     	
 
- 	   for(int i = 0; i < 4; i++){
- 	        if(p.getMincost(i)+distanceTable[source][source] < distanceTable[i][source]){
- 	          distanceTable[i][source] = p.getMincost(i)+distanceTable[source][source];
- 	          if(distanceTable[i][p.getSource()]<minCost[i]){
- 	            minCost[i] = distanceTable[i][p.getSource()];
- 	            changed = true;
- 	          }
- 	}
-	}
-    	printDT();
+    	for(int k = 0; k<4; k++){
+            if(p.getMincost(k)+minCost[p.getSource()] < distanceTable[source][k]){
+             
+              distanceTable[source][k] = p.getMincost(k)+minCost[source];
+              if(distanceTable[source][k]<minCost[k]){
+                minCost[k] = distanceTable[source][k];
+                changed= true;
+              }
+            }
+    	}
+    
     	if(changed) {
-    		System.out.println("The begining of update() in node 2");
     		//communicates with 0,1,3
           NetworkSimulator.toLayer2(new Packet(2, 0, minCost));
           NetworkSimulator.toLayer2(new Packet(2, 1, minCost));
           NetworkSimulator.toLayer2(new Packet(2, 3, minCost));
          printDT();
-    	}	
+    	}
+    	printDT();
     }
     
     public void linkCostChangeHandler(int whichLink, int newCost)

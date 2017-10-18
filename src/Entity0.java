@@ -7,11 +7,16 @@ public class Entity0 extends Entity
     	// Connections : 1,2,3
     	//Each entity has a distancetable
     	//nested for loop to intialize all variables to infinity
-    	for(int i = 0; i < 4; i++){
-            for(int j = 0; j < 4; j++){
-              distanceTable[i][j] = 999;
-            }
-    	}
+    	 for(int i = 0; i < 4; i++){
+   	        for(int j = 0; j < 4; j++){
+   	        	if(i==j) {
+   	        		distanceTable[i][j]=0;
+   	        	}
+   	        	else
+   	          distanceTable[i][j] = 999;
+   	        }
+      	 }
+ 	
     	
     	minCost[0]=0;
     	minCost[1]=1;
@@ -19,9 +24,9 @@ public class Entity0 extends Entity
     	minCost[3]=7;
     	
     	//Setting the table values to the costs
-    	distanceTable[0][0]=0;distanceTable[1][1]=1;
-    	distanceTable[2][2]=3;distanceTable[3][3]=7;
-    	
+    	distanceTable[0][0]=0;distanceTable[0][1]=1;
+    	distanceTable[0][2]=3;distanceTable[0][3]=7;
+    	printDT();
     	//source dest
     	NetworkSimulator.toLayer2(new Packet(0, 1, minCost));
 		NetworkSimulator.toLayer2(new Packet(0, 2, minCost));
@@ -50,23 +55,29 @@ public class Entity0 extends Entity
     	
     	//Loop through to compare the minimums
 
- 	   for(int i = 0; i < 4; i++){
- 	        if(p.getMincost(i)+distanceTable[source][source] < distanceTable[i][source]){
- 	          distanceTable[i][source] = p.getMincost(i)+distanceTable[source][source];
- 	          if(distanceTable[i][p.getSource()]<minCost[i]){
- 	            minCost[i] = distanceTable[i][p.getSource()];
- 	            changed = true;
- 	          }
- 	}
+    	for(int k = 0; k<4; k++){
+    		// If mincost of packet +minCost of source < current value
+            if(p.getMincost(k)+minCost[source] < distanceTable[source][k]){
+            	//set current value to mincost+cost to source
+              distanceTable[source][k] = p.getMincost(k)+minCost[source];
+              
+              // if current value less than mincost k
+              // update the mincost and send it to the other tables
+              if(distanceTable[source][k]<minCost[k]){
+                minCost[k] = distanceTable[source][k];
+                changed= true;
+              }
+            }
     	}
-    	
     	  
     	if(changed) {
     		//Communicates with 1,2,3
     		NetworkSimulator.toLayer2(new Packet(0, 1, minCost));
     		NetworkSimulator.toLayer2(new Packet(0, 2, minCost));
     		NetworkSimulator.toLayer2(new Packet(0, 3, minCost));
+    		printDT();
     	}
+    	printDT();
     }
     
     public void linkCostChangeHandler(int whichLink, int newCost)

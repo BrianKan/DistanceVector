@@ -5,20 +5,24 @@ public class Entity1 extends Entity
     {
     	// 0 and 2
     	int[] minCost=new int[4];
-    	for(int i = 0; i < 4; i++){
-            for(int j = 0; j < 4; j++){
-              distanceTable[i][j] = 999;
-            }
-    	}
-    	
+    	 for(int i = 0; i < 4; i++){
+   	        for(int j = 0; j < 4; j++){
+   	        	if(i==j) {
+   	        		distanceTable[i][j]=0;
+   	        	}
+   	        	else
+   	          distanceTable[i][j] = 999;
+   	        }
+      	 }
+ 	
     	minCost[0]=1;
     	minCost[1]=0;
     	minCost[2]=1;
     	minCost[3]=999;
     	
-    	distanceTable[0][0] = 1;distanceTable[1][1] = 0;
-        distanceTable[2][2] = 1;distanceTable[3][3] = 999;
-        
+    	distanceTable[1][0] = 1;distanceTable[1][1] = 0;
+        distanceTable[1][2] = 1;distanceTable[1][3] = 999;
+    	printDT();
         NetworkSimulator.toLayer2(new Packet(1, 0, minCost));
 		NetworkSimulator.toLayer2(new Packet(1, 2, minCost));
     }
@@ -42,23 +46,24 @@ public class Entity1 extends Entity
             minCost[i] = Math.min(zeroone, twothree);
         }
     	
-
- 	   for(int i = 0; i < 4; i++){
- 	        if(p.getMincost(i)+distanceTable[source][source] < distanceTable[i][source]){
- 	          distanceTable[i][source] = p.getMincost(i)+distanceTable[source][source];
- 	          if(distanceTable[i][p.getSource()]<minCost[i]){
- 	            minCost[i] = distanceTable[i][p.getSource()];
- 	            changed = true;
- 	          }
- 	}
-	}
-    	printDT();
+    	for(int k = 0; k<4; k++){
+            if(p.getMincost(k)+minCost[p.getSource()] < distanceTable[source][k]){
+             
+              distanceTable[source][k] = p.getMincost(k)+minCost[source];
+              if(distanceTable[source][k]<minCost[k]){
+                minCost[k] = distanceTable[source][k];
+                changed= true;
+              }
+            }
+    	}
+   
     	if(changed) {
     		//communicates with 0 and 2
           NetworkSimulator.toLayer2(new Packet(1, 0, minCost));
           NetworkSimulator.toLayer2(new Packet(1, 2, minCost));
           printDT();
     	}	
+    	printDT();
     }
     
     public void linkCostChangeHandler(int whichLink, int newCost)
