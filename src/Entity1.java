@@ -1,30 +1,38 @@
 public class Entity1 extends Entity
 {    
     // Perform any necessary initialization in the constructor
+	static int[] distVector = new int[4];
+	static final int ENTITY_ID=1;
     public Entity1()
     {
     	// 0 and 2
-    	int[] minCost=new int[4];
     	 for(int i = 0; i < 4; i++){
-   	        for(int j = 0; j < 4; j++){
-   	        	if(i==j) {
-   	        		distanceTable[i][j]=0;
-   	        	}
-   	        	else
-   	          distanceTable[i][j] = 999;
-   	        }
-      	 }
+    	        for(int j = 0; j < 4; j++){
+    	        	if(i==j) {
+    	        	   distanceTable[i][j] = 0;
+    	        	}
+    	        	else
+    	        		distanceTable[i][j] = 999;
+    	        }
+       	 }
  	
-    	minCost[0]=1;
-    	minCost[1]=0;
-    	minCost[2]=1;
-    	minCost[3]=999;
+    	distVector[0]=1;
+    	distVector[1]=0;
+    	distVector[2]=1;
+    	distVector[3]=999;
     	
-    	distanceTable[1][0] = 1;distanceTable[1][1] = 0;
-        distanceTable[1][2] = 1;distanceTable[1][3] = 999;
+    	distanceTable[1][0] = 1;
+    	distanceTable[1][1] = 0;
+        distanceTable[1][2] = 1;
+        distanceTable[1][3] = 999;
+        
+        System.out.println("Initialized");
     	printDT();
-        NetworkSimulator.toLayer2(new Packet(1, 0, minCost));
-		NetworkSimulator.toLayer2(new Packet(1, 2, minCost));
+    	
+ 
+    	
+        NetworkSimulator.toLayer2(new Packet(1, 0, distVector));
+		NetworkSimulator.toLayer2(new Packet(1, 2, distVector));
     }
     
     // Handle updates when a packet is received.  Students will need to call
@@ -37,30 +45,42 @@ public class Entity1 extends Entity
     	int source=p.getSource();
     	int min;
     	int[] maxCost=new int[4];
-    	int[] minCost=new int[4];
     	boolean changed=false;
+    	System.out.println("-----------------------------");
+    	System.out.println("Before updating node 1");
+    	System.out.println("-----------------------------");
+    	printDT();
     	
-    	for(int i = 0; i < 4; i++){
-    		int zeroone=Math.min(distanceTable[i][0], distanceTable[i][1]);
-            int twothree= Math.min(distanceTable[i][2], distanceTable[i][3]);
-            minCost[i] = Math.min(zeroone, twothree);
-        }
     	
+
     	for(int k = 0; k<4; k++){
-            if(p.getMincost(k)+minCost[p.getSource()] < distanceTable[source][k]){
-             
-              distanceTable[source][k] = p.getMincost(k)+minCost[source];
-              if(distanceTable[source][k]<minCost[k]){
-                minCost[k] = distanceTable[source][k];
+    		// If mincost of packet +distVector of source < current value
+    		//set current value to mincost+cost to source
+    		//Update the current row with the new distance vector
+    		if(p.getMincost(k)< distanceTable[source][k]){
+                distanceTable[source][k] =p.getMincost(k);
+    		}
+            if(p.getMincost(k)+distVector[source] < distanceTable[1][k]){
+              distanceTable[1][k] = p.getMincost(k)+distVector[source];
+              
+              
+              // if current value less than mincost k
+              // update the mincost and send it to the other tables
+              if(distanceTable[1][k]<distVector[k]){
+                distVector[k] = distanceTable[1][k];
                 changed= true;
               }
             }
     	}
-   
+    	System.out.println("-----------------------------");
+    	System.out.println("After updating node 1");
+    	System.out.println("-----------------------------");
+    	printDT();
     	if(changed) {
+    		System.out.println("Distance Vector Changed");
     		//communicates with 0 and 2
-          NetworkSimulator.toLayer2(new Packet(1, 0, minCost));
-          NetworkSimulator.toLayer2(new Packet(1, 2, minCost));
+          NetworkSimulator.toLayer2(new Packet(1, 0, distVector));
+          NetworkSimulator.toLayer2(new Packet(1, 2, distVector));
           printDT();
     	}	
     	printDT();
